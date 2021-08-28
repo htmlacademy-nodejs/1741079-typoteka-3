@@ -1,7 +1,7 @@
 # Личный проект «Типотека» [![Build status][travis-image]][travis-url]
 
-* Студент: [Lidiya Rychikhina](https://up.htmlacademy.ru/nodejs/3/user/1741079).
-* Наставник: `Неизвестно`.
+* Студент: [Lidaaaaa](https://up.htmlacademy.ru/nodejs/3/user/1741079).
+* Наставник: [Алексей Пан](https://htmlacademy.ru/profile/id1437965).
 
 ---
 
