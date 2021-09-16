@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/service/service.js",
+    "generate": "node ./src/service/service.js --generate 1",
     "test": "npm run eslint",
     "eslint": "eslint --ext .js src/"
   },
