@@ -1,7 +1,6 @@
 "use strict";
 
 const fs = require(`fs`);
-const chalk = require(`chalk`);
 const {DEFAULT_COUNT, ExitCode} = require(`../../constants`);
 const {getRandomInt} = require(`../../utils`);
 
@@ -85,11 +84,13 @@ module.exports = {
 
     const content = JSON.stringify(generateOffers(countOffer));
 
-    try {
-      fs.writeFileSync(FILE_NAME, content);
-      console.info(chalk.green(`Operation success. File created.`));
-    } catch (e) {
-      console.error(chalk.red(`Can't write data to file...`));
-    }
+    fs.writeFile(FILE_NAME, content, (err) => {
+      if (err) {
+        console.error(`Can't write data to file...`);
+        process.exit(ExitCode.error);
+      }
+      console.info(`Operation success. File created.`);
+      process.exit(ExitCode.success);
+    });
   }
 };
