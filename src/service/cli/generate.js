@@ -24,16 +24,16 @@ const readContent = async (filePath) => {
 };
 
 const generateOffers = (count, titles, descriptions, categories) => {
-  const countCategory = getRandomInt(0, categories.length - 1);
+  const getRandom = (arr) => arr[getRandomInt(0, arr.length - 1)];
 
   return Array(count)
     .fill({})
     .map(() => ({
-      title: titles[getRandomInt(0, titles.length - 1)],
-      announce: descriptions[getRandomInt(0, descriptions.length)],
-      fullText: descriptions[getRandomInt(0, descriptions.length)],
+      title: getRandom(titles),
+      announce: getRandom(descriptions),
+      fullText: getRandom(descriptions),
       createdDate: new Date().toISOString(),
-      category: categories.slice(0, countCategory)
+      category: getRandom(categories)
     }));
 };
 
@@ -43,9 +43,11 @@ module.exports = {
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || DEFAULT_COUNT;
 
-    const titles = await readContent(FILE_TITLES_PATH);
-    const descriptions = await readContent(FILE_SENTENCES_PATH);
-    const categories = await readContent(FILE_CATEGORIES_PATH);
+    const [titles, descriptions, categories] = await Promise.all([
+      readContent(FILE_TITLES_PATH),
+      readContent(FILE_SENTENCES_PATH),
+      readContent(FILE_CATEGORIES_PATH)
+    ]);
 
     if (countOffer > MAX_COUNT) {
       console.error(chalk.red(`Не больше ${MAX_COUNT} публикаций`));
