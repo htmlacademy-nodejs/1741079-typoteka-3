@@ -4,15 +4,6 @@ const {nanoid} = require(`nanoid`);
 const {MAX_ID_LENGTH} = require(`../../constants`);
 
 class CommentService {
-  constructor(articles) {
-    this._articles = articles;
-  }
-
-  findAll() {
-    return this._articles.reduce((acc, {comments}) => {
-      return [...acc, ...comments];
-    }, []);
-  }
 
   findAllByArticle(article) {
     return article.comments;

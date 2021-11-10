@@ -12,8 +12,7 @@ module.exports = (app, service) => {
     const {query = ``} = req.query;
 
     if (!query) {
-      res.status(HttpCode.BAD_REQUEST).json([]);
-      return [];
+      return res.status(HttpCode.BAD_REQUEST).json([]);
     }
 
     const searchResult = service.findByTitle(query);
