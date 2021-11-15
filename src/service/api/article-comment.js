@@ -16,27 +16,27 @@ module.exports = (app, articleService, commentService) => {
     return res.status(HttpCode.OK).json(comments);
   });
 
-  route.post(`/:articleId/comments`, commentValidator, (req, res) => {
-    const {article} = res.locals;
-    const comment = commentService.create(article, req.body);
-
-    return res.status(HttpCode.OK).json(comment);
-  });
-
-  route.delete(
-      `/:articleId/comments/:commentId`,
-      [articleExist(articleService), commentValidator],
+  route.post(
+      `/:articleId/comments`,
+      [commentValidator, articleExist(articleService)],
       (req, res) => {
         const {article} = res.locals;
-        const {commentId} = req.params;
+        const comment = commentService.create(article, req.body);
 
-        const dropComment = commentService.drop(article, commentId);
-
-        if (!dropComment) {
-          return res.status(HttpCode.NOT_FOUND).send(`Not found with ${commentId}`);
-        }
-
-        return res.status(HttpCode.OK).json(dropComment);
+        return res.status(HttpCode.CREATED).json(comment);
       }
   );
+
+  route.delete(`/:articleId/comments/:commentId`, articleExist(articleService), (req, res) => {
+    const {article} = res.locals;
+    const {commentId} = req.params;
+
+    const dropComment = commentService.drop(article, commentId);
+
+    if (!dropComment) {
+      return res.status(HttpCode.NOT_FOUND).send(`Not found with ${commentId}`);
+    }
+
+    return res.status(HttpCode.OK).json(dropComment);
+  });
 };

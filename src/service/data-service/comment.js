@@ -4,7 +4,6 @@ const {nanoid} = require(`nanoid`);
 const {MAX_ID_LENGTH} = require(`../../constants`);
 
 class CommentService {
-
   findAllByArticle(article) {
     return article.comments;
   }
@@ -30,7 +29,6 @@ class CommentService {
     }
 
     article.comments = article.comments.filter((item) => item.id !== commentId);
-
     return dropComment;
   }
 }

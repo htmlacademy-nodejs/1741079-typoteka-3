@@ -7,8 +7,8 @@ module.exports.USER_ARGV_INDEX = 2;
 module.exports.MAX_ID_LENGTH = 6;
 
 module.exports.ExitCode = {
-  error: 1,
-  success: 0
+  ERROR: 1,
+  SUCCESS: 0
 };
 
 module.exports.HttpCode = {
@@ -24,3 +24,8 @@ module.exports.HttpCode = {
 module.exports.API_PREFIX = `/api`;
 
 module.exports.MOCK_FILE_NAME = `mocks.json`;
+
+module.exports.Env = {
+  DEVELOPMENT: `development`,
+  PRODUCTION: `production`
+};

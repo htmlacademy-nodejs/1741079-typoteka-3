@@ -27,7 +27,7 @@ module.exports = (app, service) => {
     return res.status(HttpCode.OK).json(article);
   });
 
-  route.put(`/:articleId`, articleExist(service), (req, res) => {
+  route.put(`/:articleId`, [articleValidator, articleExist(service)], (req, res) => {
     const {article} = res.locals;
 
     const updatedArticle = service.update(article, req.body);
@@ -37,6 +37,7 @@ module.exports = (app, service) => {
 
   route.delete(`/:articleId`, articleExist(service), (req, res) => {
     const {article} = res.locals;
-    return res.status(HttpCode.OK).json(article);
+    const deletedArticle = service.drop(article);
+    return res.status(HttpCode.OK).json(deletedArticle);
   });
 };
