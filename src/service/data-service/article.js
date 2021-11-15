@@ -17,7 +17,10 @@ class ArticleService {
   }
 
   create(article) {
-    const newArticle = Object.assign({id: nanoid(MAX_ID_LENGTH), comments: []}, article);
+    const newArticle = Object.assign(
+        {id: nanoid(MAX_ID_LENGTH), date: new Date().toISOString(), comments: []},
+        article
+    );
     this._articles.push(newArticle);
 
     return newArticle;
@@ -27,15 +30,8 @@ class ArticleService {
     return Object.assign(prevArticle, article);
   }
 
-  drop(id) {
-    const article = this.findOne(id);
-
-    if (!article) {
-      return null;
-    }
-
-    this._articles = this._articles.filter((item) => item.id !== id);
-
+  drop(article) {
+    this._articles = this._articles.filter((item) => item.id !== article.id);
     return article;
   }
 }

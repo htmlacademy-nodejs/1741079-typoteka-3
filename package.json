@@ -4,9 +4,11 @@
   "description": "Typoteka",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./src/service/service.js --server",
+    "start": "cross-env NODE_ENV=production LOG_LEVEL=error node ./src/service/service.js --server 3000",
+    "start::debug": "cross-env NODE_ENV=development nodemon ./src/service/service.js --server 3000 | pino-pretty",
     "start-front-server": "nodemon ./src/express/express.js",
-    "test": "npm run eslint",
+    "jest": "jest",
+    "test": "npm run eslint && npm run jest",
     "eslint": "eslint --ext .js src/"
   },
   "repository": {
@@ -22,12 +24,17 @@
   "devDependencies": {
     "eslint": "7.32.0",
     "eslint-config-htmlacademy": "0.6.0",
-    "nodemon": "2.0.12"
+    "jest": "27.3.1",
+    "nodemon": "2.0.12",
+    "pino-pretty": "7.2.0",
+    "supertest": "6.1.6"
   },
   "dependencies": {
     "chalk": "4.1.2",
+    "cross-env": "7.0.3",
     "express": "4.17.1",
     "nanoid": "3.1.30",
+    "pino": "7.2.0",
     "pug": "3.0.2"
   }
 }

@@ -66,7 +66,7 @@ module.exports = {
 
     if (countOffer > MAX_OFFER_COUNT) {
       console.error(chalk.red(`Не больше ${MAX_OFFER_COUNT} публикаций`));
-      process.exit(ExitCode.error);
+      process.exit(ExitCode.ERROR);
     }
 
     const content = JSON.stringify(
@@ -76,10 +76,10 @@ module.exports = {
     try {
       await fs.writeFile(MOCK_FILE_NAME, content);
       console.info(chalk.green(`Operation success. File created.`));
-      process.exit(ExitCode.success);
+      process.exit(ExitCode.SUCCESS);
     } catch (e) {
       console.error(chalk.red(`Can't write data to file...`));
-      process.exit(ExitCode.error);
+      process.exit(ExitCode.ERROR);
     }
   }
 };
