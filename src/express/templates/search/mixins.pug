@@ -1,0 +1,4 @@
+mixin boldFoundWord(title, found)
+  if (title && title.length)
+    a.search__link
+      | #{title.slice(0, title.indexOf(found))}#[b #{found}]#{title.slice(title.indexOf(found) + found.length)}

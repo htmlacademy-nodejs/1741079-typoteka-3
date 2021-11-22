@@ -14,7 +14,7 @@ const mockData = [
     announce: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
     fullText: `Помните небольшое количество ежедневных упражнений лучше чем один раз но много.`,
     createdDate: `2021-11-14T16:46:47.412Z`,
-    category: `Музыка`,
+    categories: [`Музыка`],
     comments: [
       {id: `gaAGG8`, text: `Совсем немного... Хочу такую же футболку :-)`},
       {id: `yVCG95`, text: `Согласен с автором! Это где ж такие красоты? Совсем немного...`},
@@ -31,7 +31,7 @@ const mockData = [
     announce: `Альбом стал настоящим открытием года. Мощные гитарные рифы и скоростные соло-партии не дадут заскучать.`,
     fullText: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
     createdDate: `2021-11-14T16:46:47.412Z`,
-    category: `Деревья`,
+    categories: [`Деревья`],
     comments: [
       {id: `Aw6fOF`, text: `Плюсую, но слишком много буквы!`},
       {id: `O9ytWI`, text: `Согласен с автором!`},
@@ -51,7 +51,7 @@ const mockData = [
     announce: `Альбом стал настоящим открытием года. Мощные гитарные рифы и скоростные соло-партии не дадут заскучать.`,
     fullText: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
     createdDate: `2021-11-14T16:46:47.412Z`,
-    category: `Деревья`,
+    categories: [`Деревья`],
     comments: [{id: `3kWn3y`, text: `Это где ж такие красоты?`}]
   },
   {
@@ -60,7 +60,7 @@ const mockData = [
     announce: `Помните небольшое количество ежедневных упражнений лучше чем один раз но много.`,
     fullText: `Он написал больше 30 хитов.`,
     createdDate: `2021-11-14T16:46:47.412Z`,
-    category: `IT`,
+    categories: [`IT`],
     comments: [
       {
         id: `vJ9B2u`,
@@ -74,7 +74,7 @@ const mockData = [
     announce: `Ёлки — это не просто красивое дерево. Это прочная древесина.`,
     fullText: `Вы можете достичь всего. Стоит только немного постараться и запастись книгами.`,
     createdDate: `2021-11-14T16:46:47.412Z`,
-    category: `Разное`,
+    categories: [`Разное`],
     comments: [
       {
         id: `-PjPWk`,
@@ -135,7 +135,8 @@ describe(`API creates an offer if data is valid`, () => {
     title: `Пропал музейный кот Ося`,
     announce: `Кот Ахматовой`,
     fullText: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
-    category: `Котики`
+    categories: [`Котики`],
+    createdDate: `2021-11-20T11:06:57.086Z`
   };
 
   const app = createAPI();
@@ -161,7 +162,8 @@ describe(`API refuses to create an offer if data is invalid`, () => {
     title: `Пропал музейный кот Ося`,
     announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
     fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
-    category: `Котики`
+    categories: [`Котики`],
+    createdDate: `2021-11-20T11:06:57.086Z`
   };
 
   const app = createAPI();
@@ -180,7 +182,8 @@ describe(`API changes existent article`, () => {
     title: `Пропал музейный кот Ося`,
     announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
     fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
-    category: `Котики`
+    categories: [`Котики`],
+    createdDate: `2021-11-20T11:06:57.086Z`
   };
 
   const app = createAPI();
@@ -208,7 +211,8 @@ test(`API returns status code 404 when trying to change non-existent article`, (
     title: `Это`,
     announce: `валидная статья`,
     fullText: `однако`,
-    category: `404`
+    categories: [`404`],
+    createdDate: `2021-11-20T11:06:57.086Z`
   };
 
   return request(app).put(`/articles/NOEXST`).send(validArticle).expect(HttpCode.NOT_FOUND);
@@ -220,7 +224,7 @@ test(`API returns status code 400 when trying to change an article with invalid 
   const invalidArticle = {
     title: `Это`,
     announce: `невалидная статья`,
-    fullText: `нет поля category`
+    fullText: `нет поля categories`
   };
 
   return request(app).put(`/articles/NOEXST`).send(invalidArticle).expect(HttpCode.BAD_REQUEST);

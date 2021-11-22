@@ -1,5 +1,7 @@
 "use strict";
 
+const dayjs = require(`dayjs`);
+
 /**
  * Возвращает случайное число в диапазоне min и max.
  *
@@ -29,3 +31,7 @@ module.exports.shuffle = (someArray) => {
 
   return someArray;
 };
+
+module.exports.formattedDate = (date) => dayjs(date).format(`D.MM.YYYY, HH:mm`);
+module.exports.dateToISOString = (date) => dayjs(date).toISOString();
+module.exports.ensureArray = (value) => (Array.isArray(value) ? value : [value]);
