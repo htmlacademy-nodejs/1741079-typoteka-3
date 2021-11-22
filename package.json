@@ -4,9 +4,9 @@
   "description": "Typoteka",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production LOG_LEVEL=error node ./src/service/service.js --server 3000",
-    "start::debug": "cross-env NODE_ENV=development nodemon ./src/service/service.js --server 3000 | pino-pretty",
-    "start-front-server": "nodemon ./src/express/express.js",
+    "start": "cross-env NODE_ENV=production API_PORT=3000 LOG_LEVEL=error node ./src/service/service.js --server",
+    "start::debug": "cross-env NODE_ENV=development API_PORT=3000 nodemon ./src/service/service.js --server | pino-pretty",
+    "start-front-server": "cross-env PORT=8080 API_PORT=3000 nodemon ./src/express/express.js",
     "jest": "jest",
     "test": "npm run eslint && npm run jest",
     "eslint": "eslint --ext .js src/"
@@ -30,9 +30,13 @@
     "supertest": "6.1.6"
   },
   "dependencies": {
+    "axios": "0.24.0",
+    "body-parser": "1.19.0",
     "chalk": "4.1.2",
     "cross-env": "7.0.3",
+    "dayjs": "1.10.7",
     "express": "4.17.1",
+    "multer": "1.4.3",
     "nanoid": "3.1.30",
     "pino": "7.2.0",
     "pug": "3.0.2"

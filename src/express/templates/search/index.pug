@@ -1,0 +1,17 @@
+extends ../layout.pug
+include ./mixins
+
+block content
+  main
+    section.search-page
+      .search-page__wrapper
+        h1 Поиск
+        .search.search-page__form
+          form(action='/search' method='get')
+            label
+              input(type='text' name='query' placeholder='Что ищем?' value=searchValue)
+            button.search__button.button.button--transparent(type='submit') Найти
+          each result in results
+            .search__result
+              time.search__date(datetime=result.createdDate) #{formattedDate(result.createdDate)}
+              +boldFoundWord(result.title, searchValue)

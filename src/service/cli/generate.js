@@ -7,7 +7,7 @@ const {ExitCode, MOCK_FILE_NAME, MAX_ID_LENGTH} = require(`../../constants`);
 const {getRandomInt, shuffle} = require(`../../utils`);
 
 const DEFAULT_COUNT = 1;
-const MAX_OFFER_COUNT = 1000;
+const MAX_ARTICLE_COUNT = 1000;
 const MAX_COMMENTS = 4;
 
 const FILE_TITLES_PATH = `./data/titles.txt`;
@@ -35,7 +35,7 @@ const generateComments = (comments) => {
     }));
 };
 
-const generateOffers = ({count, titles, descriptions, categories, comments}) => {
+const generateArticles = ({count, titles, descriptions, categories, comments}) => {
   const getRandom = (arr) => arr[getRandomInt(0, arr.length - 1)];
 
   return Array(count)
@@ -46,7 +46,7 @@ const generateOffers = ({count, titles, descriptions, categories, comments}) => 
       announce: getRandom(descriptions),
       fullText: getRandom(descriptions),
       createdDate: new Date().toISOString(),
-      category: getRandom(categories),
+      categories: [getRandom(categories)],
       comments: generateComments(comments)
     }));
 };
@@ -55,7 +55,7 @@ module.exports = {
   name: `--generate`,
   async run(args) {
     const [count] = args;
-    const countOffer = Number.parseInt(count, 10) || DEFAULT_COUNT;
+    const countArticle = Number.parseInt(count, 10) || DEFAULT_COUNT;
 
     const [titles, descriptions, categories, comments] = await Promise.all([
       readContent(FILE_TITLES_PATH),
@@ -64,13 +64,13 @@ module.exports = {
       readContent(FILE_COMMENTS_PATH)
     ]);
 
-    if (countOffer > MAX_OFFER_COUNT) {
-      console.error(chalk.red(`Не больше ${MAX_OFFER_COUNT} публикаций`));
+    if (countArticle > MAX_ARTICLE_COUNT) {
+      console.error(chalk.red(`Не больше ${MAX_ARTICLE_COUNT} публикаций`));
       process.exit(ExitCode.ERROR);
     }
 
     const content = JSON.stringify(
-        generateOffers({count: countOffer, titles, descriptions, categories, comments})
+        generateArticles({count: countArticle, titles, descriptions, categories, comments})
     );
 
     try {
