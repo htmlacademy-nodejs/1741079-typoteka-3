@@ -1,7 +1,7 @@
 "use strict";
 
 const fs = require(`fs`).promises;
-const {MOCK_FILE_NAME} = require(`../../constants`);
+const {Files} = require(`../../constants`);
 
 let data = [];
 
@@ -11,7 +11,7 @@ const getMockData = async () => {
   }
 
   try {
-    const fileContent = await fs.readFile(MOCK_FILE_NAME);
+    const fileContent = await fs.readFile(Files.MOCK_DATA);
     data = JSON.parse(fileContent);
   } catch (e) {
     console.log(e);
