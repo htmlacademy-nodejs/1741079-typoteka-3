@@ -3,17 +3,9 @@
 const fs = require(`fs`).promises;
 const {nanoid} = require(`nanoid`);
 const chalk = require(`chalk`);
-const {ExitCode, MOCK_FILE_NAME, MAX_ID_LENGTH} = require(`../../constants`);
+
+const {ExitCode, MAX_ID_LENGTH, Files, GenerateParams, DataFiles} = require(`../../constants`);
 const {getRandomInt, shuffle} = require(`../../utils`);
-
-const DEFAULT_COUNT = 1;
-const MAX_ARTICLE_COUNT = 1000;
-const MAX_COMMENTS = 4;
-
-const FILE_TITLES_PATH = `./data/titles.txt`;
-const FILE_SENTENCES_PATH = `./data/sentences.txt`;
-const FILE_CATEGORIES_PATH = `./data/categories.txt`;
-const FILE_COMMENTS_PATH = `./data/comments.txt`;
 
 const readContent = async (filePath) => {
   try {
@@ -25,8 +17,17 @@ const readContent = async (filePath) => {
   }
 };
 
+const generateCategories = (categories) => {
+  const count = getRandomInt(1, GenerateParams.MAX_CATEGORIES);
+  const list = Array(count)
+    .fill(``)
+    .map(() => categories[getRandomInt(1, categories.length - 1)]);
+
+  return [...new Set(list)];
+};
+
 const generateComments = (comments) => {
-  const count = getRandomInt(1, MAX_COMMENTS);
+  const count = getRandomInt(1, GenerateParams.MAX_COMMENTS);
   return Array(count)
     .fill({})
     .map(() => ({
@@ -46,7 +47,7 @@ const generateArticles = ({count, titles, descriptions, categories, comments}) =
       announce: getRandom(descriptions),
       fullText: getRandom(descriptions),
       createdDate: new Date().toISOString(),
-      categories: [getRandom(categories)],
+      categories: generateCategories(categories),
       comments: generateComments(comments)
     }));
 };
@@ -55,17 +56,14 @@ module.exports = {
   name: `--generate`,
   async run(args) {
     const [count] = args;
-    const countArticle = Number.parseInt(count, 10) || DEFAULT_COUNT;
+    const countArticle = Number.parseInt(count, 10) || GenerateParams.DEFAULT_COUNT;
 
-    const [titles, descriptions, categories, comments] = await Promise.all([
-      readContent(FILE_TITLES_PATH),
-      readContent(FILE_SENTENCES_PATH),
-      readContent(FILE_CATEGORIES_PATH),
-      readContent(FILE_COMMENTS_PATH)
-    ]);
+    const [titles, descriptions, categories, comments] = await Promise.all(
+        Object.values(DataFiles).map((file) => readContent(file))
+    );
 
-    if (countArticle > MAX_ARTICLE_COUNT) {
-      console.error(chalk.red(`Не больше ${MAX_ARTICLE_COUNT} публикаций`));
+    if (countArticle > GenerateParams.MAX_ARTICLE_COUNT) {
+      console.error(chalk.red(`Не больше ${GenerateParams.MAX_ARTICLE_COUNT} публикаций`));
       process.exit(ExitCode.ERROR);
     }
 
@@ -74,7 +72,7 @@ module.exports = {
     );
 
     try {
-      await fs.writeFile(MOCK_FILE_NAME, content);
+      await fs.writeFile(Files.MOCK_DATA, content);
       console.info(chalk.green(`Operation success. File created.`));
       process.exit(ExitCode.SUCCESS);
     } catch (e) {
