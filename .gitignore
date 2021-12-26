@@ -16,4 +16,7 @@ mocks.json
 build/
 **/upload/**/*.*
 
+# Файл с переменными окружения
+.env
+
 !.gitkeep
