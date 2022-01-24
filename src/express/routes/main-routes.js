@@ -8,7 +8,7 @@ const mainRoutes = new Router();
 const api = getAPI();
 
 mainRoutes.get(`/`, async (_req, res) => {
-  const [articles, categories] = await Promise.all([api.getArticles(), api.getCategories()]);
+  const [articles, categories] = await Promise.all([api.getArticles(), api.getCategories(true)]);
   res.render(`main/index`, {
     articles,
     formattedDate,

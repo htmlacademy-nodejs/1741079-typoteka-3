@@ -7,7 +7,7 @@
     "start": "cross-env NODE_ENV=production LOG_LEVEL=error node -r dotenv/config ./src/service/service.js --server",
     "start::debug": "cross-env NODE_ENV=development LOG_LEVEL=info nodemon -r dotenv/config ./src/service/service.js --server | pino-pretty",
     "start-front-server": "cross-env PORT=8080 API_PORT=3000 nodemon ./src/express/express.js",
-    "jest": "jest",
+    "jest": "jest src/service/api/article.e2e.test.js",
     "test": "npm run eslint && npm run jest",
     "eslint": "eslint --ext .js src/"
   },
@@ -27,6 +27,7 @@
     "jest": "27.3.1",
     "nodemon": "2.0.12",
     "pino-pretty": "7.2.0",
+    "sqlite3": "5.0.2",
     "supertest": "6.1.6"
   },
   "dependencies": {
@@ -42,6 +43,6 @@
     "pg": "8.7.1",
     "pino": "7.2.0",
     "pug": "3.0.2",
-    "sequelize": "6.12.2"
+    "sequelize": "6.13.0"
   }
 }

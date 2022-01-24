@@ -2,126 +2,62 @@
 
 const express = require(`express`);
 const request = require(`supertest`);
+const {Sequelize} = require(`sequelize`);
 
-const {HttpCode} = require(`../../constants`);
 const article = require(`./article`);
 const DataService = require(`../data-service/article`);
+const initDB = require(`../lib/init-db`);
+const {HttpCode} = require(`../../constants`);
 
-const mockData = [
+const mockCategories = [`Разное`, `Музыка`];
+
+const mockArticles = [
   {
-    id: `LTNBKK`,
     title: `Лучшие рок-музыканты 20-века`,
     announce: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
     fullText: `Помните небольшое количество ежедневных упражнений лучше чем один раз но много.`,
-    createdDate: `2021-11-14T16:46:47.412Z`,
-    categories: [`Музыка`],
+    categories: [`Разное`, `Музыка`],
     comments: [
-      {id: `gaAGG8`, text: `Совсем немного... Хочу такую же футболку :-)`},
-      {id: `yVCG95`, text: `Согласен с автором! Это где ж такие красоты? Совсем немного...`},
-      {id: `MX0wET`, text: `Плюсую, но слишком много буквы! Хочу такую же футболку :-)`},
+      {text: `Совсем немного... Хочу такую же футболку :-)`},
+      {text: `Согласен с автором! Это где ж такие красоты? Совсем немного...`},
+      {text: `Плюсую, но слишком много буквы! Хочу такую же футболку :-)`},
       {
-        id: `zTPalj`,
         text: `Совсем немного... Мне не нравится ваш стиль. Ощущение, что вы меня поучаете. Согласен с автором!`
-      }
-    ]
-  },
-  {
-    id: `pa-09f`,
-    title: `Лучшие рок-музыканты 20-века`,
-    announce: `Альбом стал настоящим открытием года. Мощные гитарные рифы и скоростные соло-партии не дадут заскучать.`,
-    fullText: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
-    createdDate: `2021-11-14T16:46:47.412Z`,
-    categories: [`Деревья`],
-    comments: [
-      {id: `Aw6fOF`, text: `Плюсую, но слишком много буквы!`},
-      {id: `O9ytWI`, text: `Согласен с автором!`},
-      {
-        id: `BWKmgk`,
-        text: `Мне не нравится ваш стиль. Ощущение, что вы меня поучаете. Совсем немного... Согласен с автором!`
-      },
-      {
-        id: `U-OjTQ`,
-        text: `Давно не пользуюсь стационарными компьютерами. Ноутбуки победили. Мне кажется или я уже читал это где-то? Это где ж такие красоты?`
-      }
-    ]
-  },
-  {
-    id: `CUWBVg`,
-    title: `Как перестать беспокоиться и начать жить`,
-    announce: `Альбом стал настоящим открытием года. Мощные гитарные рифы и скоростные соло-партии не дадут заскучать.`,
-    fullText: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
-    createdDate: `2021-11-14T16:46:47.412Z`,
-    categories: [`Деревья`],
-    comments: [{id: `3kWn3y`, text: `Это где ж такие красоты?`}]
-  },
-  {
-    id: `uYalg4`,
-    title: `Как начать программировать`,
-    announce: `Помните небольшое количество ежедневных упражнений лучше чем один раз но много.`,
-    fullText: `Он написал больше 30 хитов.`,
-    createdDate: `2021-11-14T16:46:47.412Z`,
-    categories: [`IT`],
-    comments: [
-      {
-        id: `vJ9B2u`,
-        text: `Совсем немного... Мне не нравится ваш стиль. Ощущение, что вы меня поучаете.`
-      }
-    ]
-  },
-  {
-    id: `HTGJzm`,
-    title: `Рок — это протест`,
-    announce: `Ёлки — это не просто красивое дерево. Это прочная древесина.`,
-    fullText: `Вы можете достичь всего. Стоит только немного постараться и запастись книгами.`,
-    createdDate: `2021-11-14T16:46:47.412Z`,
-    categories: [`Разное`],
-    comments: [
-      {
-        id: `-PjPWk`,
-        text: `Мне кажется или я уже читал это где-то? Это где ж такие красоты? Хочу такую же футболку :-)`
-      },
-      {id: `LbZy6q`, text: `Плюсую, но слишком много буквы! Совсем немного...`},
-      {
-        id: `-ISuEh`,
-        text: `Мне кажется или я уже читал это где-то? Давно не пользуюсь стационарными компьютерами. Ноутбуки победили. Планируете записать видосик на эту тему?`
-      },
-      {
-        id: `UgO5L2`,
-        text: `Совсем немного... Мне кажется или я уже читал это где-то? Мне не нравится ваш стиль. Ощущение, что вы меня поучаете.`
       }
     ]
   }
 ];
 
-const createAPI = () => {
+const createAPI = async () => {
+  const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
   const app = express();
-  const cloneData = JSON.parse(JSON.stringify(mockData));
   app.use(express.json());
-  article(app, new DataService(cloneData));
+  await initDB(mockDB, {articles: mockArticles, categories: mockCategories});
+  article(app, new DataService(mockDB));
   return app;
 };
 
 describe(`API returns a list of all articles`, () => {
-  const app = createAPI();
   let response;
+  let app;
 
   beforeAll(async () => {
+    app = await createAPI();
     response = await request(app).get(`/articles`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns a list of 5 articles`, () => expect(response.body.length).toBe(5));
-
-  test(`First article's id equals "LTNBKK"`, () => expect(response.body[0].id).toBe(`LTNBKK`));
+  test(`Returns a list of 1 article`, () => expect(response.body.length).toBe(1));
 });
 
 describe(`API returns an offer with given id`, () => {
-  const app = createAPI();
   let response;
+  let app;
 
   beforeAll(async () => {
-    response = await request(app).get(`/articles/LTNBKK`);
+    app = await createAPI();
+    response = await request(app).get(`/articles/1`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
@@ -135,26 +71,23 @@ describe(`API creates an offer if data is valid`, () => {
     title: `Пропал музейный кот Ося`,
     announce: `Кот Ахматовой`,
     fullText: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
-    categories: [`Котики`],
-    createdDate: `2021-11-20T11:06:57.086Z`
+    categories: [1]
   };
 
-  const app = createAPI();
+  let app;
   let response;
 
   beforeAll(async () => {
+    app = await createAPI();
     response = await request(app).post(`/articles`).send(newArticle);
   });
 
   test(`Status code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
 
-  test(`Returns offer created`, () =>
-    expect(response.body).toEqual(expect.objectContaining(newArticle)));
-
   test(`Article count is changed`, () =>
     request(app)
       .get(`/articles`)
-      .expect((res) => expect(res.body.length).toBe(6)));
+      .expect((res) => expect(res.body.length).toBe(2)));
 });
 
 describe(`API refuses to create an offer if data is invalid`, () => {
@@ -162,15 +95,17 @@ describe(`API refuses to create an offer if data is invalid`, () => {
     title: `Пропал музейный кот Ося`,
     announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
     fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
-    categories: [`Котики`],
-    createdDate: `2021-11-20T11:06:57.086Z`
+    categories: [1]
   };
+  let app;
 
-  const app = createAPI();
+  beforeAll(async () => {
+    app = await createAPI();
+  });
 
   test(`Without any required property response code is 400`, async () => {
     for (const key of Object.keys(newArticle)) {
-      const badOffer = {...newArticle};
+      const badOffer = {...newArticle, categories: newArticle.categories.slice(0)};
       delete badOffer[key];
       await request(app).post(`/articles`).send(badOffer).expect(HttpCode.BAD_REQUEST);
     }
@@ -182,74 +117,68 @@ describe(`API changes existent article`, () => {
     title: `Пропал музейный кот Ося`,
     announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
     fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
-    categories: [`Котики`],
-    createdDate: `2021-11-20T11:06:57.086Z`
+    categories: [1]
   };
 
-  const app = createAPI();
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).put(`/articles/HTGJzm`).send(newArticle);
+    app = await createAPI();
+    response = await request(app).put(`/articles/1`).send(newArticle);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns changed article`, () =>
-    expect(response.body).toEqual(expect.objectContaining(newArticle)));
-
   test(`Article is really changed`, () =>
     request(app)
-      .get(`/articles/HTGJzm`)
+      .get(`/articles/1`)
       .expect((res) => expect(res.body.title).toBe(`Пропал музейный кот Ося`)));
 });
 
-test(`API returns status code 404 when trying to change non-existent article`, () => {
-  const app = createAPI();
+test(`API returns status code 404 when trying to change non-existent article`, async () => {
+  const app = await createAPI();
 
   const validArticle = {
     title: `Это`,
     announce: `валидная статья`,
     fullText: `однако`,
-    categories: [`404`],
-    createdDate: `2021-11-20T11:06:57.086Z`
+    categories: [1]
   };
 
-  return request(app).put(`/articles/NOEXST`).send(validArticle).expect(HttpCode.NOT_FOUND);
+  return request(app).put(`/articles/20`).send(validArticle).expect(HttpCode.NOT_FOUND);
 });
 
-test(`API returns status code 400 when trying to change an article with invalid data`, () => {
-  const app = createAPI();
-
+test(`API returns status code 400 when trying to change an article with invalid data`, async () => {
   const invalidArticle = {
     title: `Это`,
     announce: `невалидная статья`,
     fullText: `нет поля categories`
   };
+  const app = await createAPI();
 
-  return request(app).put(`/articles/NOEXST`).send(invalidArticle).expect(HttpCode.BAD_REQUEST);
+  return await request(app).put(`/articles/1`).send(invalidArticle).expect(HttpCode.BAD_REQUEST);
 });
 
 describe(`API correctly deletes an article`, () => {
-  const app = createAPI();
+  let app;
   let response;
 
   beforeAll(async () => {
-    response = await request(app).delete(`/articles/CUWBVg`);
+    app = await createAPI();
+    response = await request(app).delete(`/articles/1`);
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns deleted article`, () => expect(response.body.id).toBe(`CUWBVg`));
-
-  test(`Article count is 4 now`, () =>
+  test(`Article list is empty`, () =>
     request(app)
       .get(`/articles`)
-      .expect((res) => expect(res.body.length).toBe(4)));
+      .expect((res) => expect(res.body.length).toBe(0)));
 });
 
-test(`API refuses to delete non-existent article`, () => {
-  const app = createAPI();
+test(`API refuses to delete non-existent article`, async () => {
+  const app = await createAPI();
 
-  return request(app).delete(`/articles/NOEXST`).expect(HttpCode.NOT_FOUND);
+  return request(app).delete(`/articles/21`).expect(HttpCode.NOT_FOUND);
 });

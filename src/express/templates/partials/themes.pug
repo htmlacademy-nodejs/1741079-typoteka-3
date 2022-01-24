@@ -3,7 +3,7 @@ section.main-page__theme-list
   ul.themes
     each category in categories
       li.themes__item
-        a.themes__item-link(href='#')
-          | #{category}
-          //- sup 88
+        a.themes__item-link(href=`/categories/${category.id}`)
+          | #{category.name}
+          sup #{category.count}
 

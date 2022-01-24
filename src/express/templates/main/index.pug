@@ -18,7 +18,7 @@ block content
               ul.preview__breadcrumbs
                 each category in article.categories
                   li.preview__breadcrumbs-item
-                    a.preview__breadcrumbs-link(href=`/articles/category/${category}`) #{category}
+                    a.preview__breadcrumbs-link(href=`/articles/categories/${category.id}`) #{category.name}
             .preview__background
                img.preview__background-image(src=`/img/${article.preview || 'skyscraper@1x.jpg'}` alt=`${article.title}`)
             time.preview__time(datetime=article.date) #{formattedDate(article.date)}
