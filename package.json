@@ -7,7 +7,7 @@
     "start": "cross-env NODE_ENV=production LOG_LEVEL=error node -r dotenv/config ./src/service/service.js --server",
     "start::debug": "cross-env NODE_ENV=development LOG_LEVEL=info nodemon -r dotenv/config ./src/service/service.js --server | pino-pretty",
     "start-front-server": "cross-env PORT=8080 API_PORT=3000 nodemon ./src/express/express.js",
-    "jest": "jest src/service/api/article.e2e.test.js",
+    "jest": "jest",
     "test": "npm run eslint && npm run jest",
     "eslint": "eslint --ext .js src/"
   },
