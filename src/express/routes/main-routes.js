@@ -9,11 +9,10 @@ const api = getAPI();
 
 mainRoutes.get(`/`, async (_req, res) => {
   const [articles, categories] = await Promise.all([
-    api.getArticles(true),
+    api.getArticles({comments: true}),
     api.getCategories(true)
   ]);
 
-  console.log(articles);
   res.render(`main/index`, {
     articles,
     formattedDate,
