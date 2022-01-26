@@ -16,12 +16,12 @@ class API {
     return response.data;
   }
 
-  getArticles({comments}) {
-    return this._load(`/articles`, {params: comments});
+  getArticles(comments) {
+    return this._load(`/articles`, {params: {comments}});
   }
 
-  getArticle(id, {comments}) {
-    return this._load(`/articles/${id}`, {params: comments});
+  getArticle(id, comments) {
+    return this._load(`/articles/${id}`, {params: {comments}});
   }
 
   search(query) {

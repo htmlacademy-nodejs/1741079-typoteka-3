@@ -13,7 +13,7 @@ myRoutes.get(`/`, async (_req, res) => {
 });
 
 myRoutes.get(`/comments`, async (_req, res) => {
-  const articles = await api.getArticles({comments: true});
+  const articles = await api.getArticles(true);
   res.render(`my/comments`, {articles, formattedDate});
 });
 

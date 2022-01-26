@@ -72,7 +72,7 @@ articlesRoutes.get(`/edit/:id`, async (req, res) => {
 
 articlesRoutes.get(`/:id`, async (req, res) => {
   const {id} = req.params;
-  const article = await api.getArticle(id, {comments: true});
+  const article = await api.getArticle(id, true);
   res.render(`articles/post-detail`, {article, formattedDate});
 });
 
