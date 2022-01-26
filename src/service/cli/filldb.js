@@ -1,11 +1,26 @@
 "use strict";
 
 const fs = require(`fs`).promises;
-const {nanoid} = require(`nanoid`);
 const chalk = require(`chalk`);
 
-const {ExitCode, MAX_ID_LENGTH, Files, GenerateParams, DataFiles} = require(`../../constants`);
+const {getLogger} = require(`../lib/logger`);
+const sequelize = require(`../lib/sequelize`);
+const initDb = require(`../lib/init-db`);
+
+const {GenerateParams, DataFiles} = require(`../../constants`);
 const {getRandomInt, shuffle} = require(`../../utils`);
+
+const logger = getLogger({name: `api`});
+
+const generateCategories = (items) => {
+  items = items.slice();
+  let count = getRandomInt(1, 4);
+  const result = [];
+  while (count--) {
+    result.push(...items.splice(getRandomInt(0, items.length - 1), 1));
+  }
+  return result;
+};
 
 const readContent = async (filePath) => {
   try {
@@ -17,21 +32,11 @@ const readContent = async (filePath) => {
   }
 };
 
-const generateCategories = (categories) => {
-  const count = getRandomInt(1, GenerateParams.MAX_CATEGORIES);
-  const list = Array(count)
-    .fill(``)
-    .map(() => categories[getRandomInt(1, categories.length - 1)]);
-
-  return [...new Set(list)];
-};
-
 const generateComments = (comments) => {
   const count = getRandomInt(1, GenerateParams.MAX_COMMENTS);
   return Array(count)
     .fill({})
     .map(() => ({
-      id: nanoid(MAX_ID_LENGTH),
       text: shuffle(comments).slice(0, getRandomInt(1, 3)).join(` `)
     }));
 };
@@ -42,7 +47,6 @@ const generateArticles = ({count, titles, descriptions, categories, comments}) =
   return Array(count)
     .fill({})
     .map(() => ({
-      id: nanoid(MAX_ID_LENGTH),
       title: getRandom(titles),
       announce: getRandom(descriptions),
       fullText: getRandom(descriptions),
@@ -53,31 +57,32 @@ const generateArticles = ({count, titles, descriptions, categories, comments}) =
 };
 
 module.exports = {
-  name: `--generate`,
+  name: `--filldb`,
   async run(args) {
-    const [count] = args;
-    const countArticle = Number.parseInt(count, 10) || GenerateParams.DEFAULT_COUNT;
+    try {
+      logger.info(`Trying to connect to database...`);
+      await sequelize.authenticate();
+    } catch (err) {
+      logger.error(`An error occurred: ${err.message}`);
+      process.exit(1);
+    }
+    logger.info(`Connection to database established`);
 
     const [titles, descriptions, categories, comments] = await Promise.all(
         Object.values(DataFiles).map((file) => readContent(file))
     );
 
-    if (countArticle > GenerateParams.MAX_ARTICLE_COUNT) {
-      console.error(chalk.red(`Не больше ${GenerateParams.MAX_ARTICLE_COUNT} публикаций`));
-      process.exit(ExitCode.ERROR);
-    }
+    const [count] = args;
+    const countArticle = Number.parseInt(count, 10) || GenerateParams.DEFAULT_COUNT;
 
-    const content = JSON.stringify(
-        generateArticles({count: countArticle, titles, descriptions, categories, comments})
-    );
+    const articles = generateArticles({
+      count: countArticle,
+      titles,
+      descriptions,
+      categories,
+      comments
+    });
 
-    try {
-      await fs.writeFile(Files.MOCK_DATA, content);
-      console.info(chalk.green(`Operation success. File created.`));
-      process.exit(ExitCode.SUCCESS);
-    } catch (e) {
-      console.error(chalk.red(`Can't write data to file...`));
-      process.exit(ExitCode.ERROR);
-    }
+    return initDb(sequelize, {articles, categories});
   }
 };

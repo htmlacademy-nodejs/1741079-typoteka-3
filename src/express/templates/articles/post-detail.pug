@@ -15,9 +15,9 @@ block content
               ul.post__themes.themes
                 each category in article.categories
                   li.themes__item
-                    a.themes__item-link(href=`categories/${category}`)
-                      | #{category}
-                      sup 88
+                    a.themes__item-link(href=`categories/${category.id}`)
+                      | #{category.name}
+                      sup #{category.count}
                     button.themes__remove-btn(type='button') Удалить категорию
           .post__picture
             img(src='/img/sea-fullsize@1x.jpg' alt=article.title)
