@@ -6,18 +6,28 @@ const {formattedDate} = require(`../../utils`);
 
 const mainRoutes = new Router();
 const api = getAPI();
+const ARTICLES_PER_PAGE = 8;
 
-mainRoutes.get(`/`, async (_req, res) => {
-  const [articles, categories] = await Promise.all([
-    api.getArticles({comments: true}),
+mainRoutes.get(`/`, async (req, res) => {
+  let {page = 1} = req.query;
+  page = +page;
+  const limit = ARTICLES_PER_PAGE;
+  const offset = (page - 1) * ARTICLES_PER_PAGE;
+
+  const [{count, articles}, categories] = await Promise.all([
+    api.getArticles({comments: true, limit, offset}),
     api.getCategories(true)
   ]);
+
+  const totalPages = Math.ceil(count / ARTICLES_PER_PAGE);
 
   res.render(`main/index`, {
     articles,
     formattedDate,
     categories,
-    hotArticles: articles.slice(0, 4)
+    hotArticles: articles.slice(0, 4),
+    totalPages,
+    page
   });
 });
 
