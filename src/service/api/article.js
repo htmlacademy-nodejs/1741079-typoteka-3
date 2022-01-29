@@ -5,6 +5,7 @@ const {HttpCode} = require(`../../constants`);
 
 const articleValidator = require(`../middlewares/article-validator`);
 const articleExist = require(`../middlewares/article-exist`);
+const routeParamsValidator = require(`../middlewares/route-params-validator`);
 
 module.exports = (app, service) => {
   const route = new Router();
@@ -27,20 +28,24 @@ module.exports = (app, service) => {
     return res.status(HttpCode.CREATED).json(article);
   });
 
-  route.get(`/:articleId`, articleExist(service), (req, res) => {
+  route.get(`/:articleId`, [routeParamsValidator, articleExist(service)], (req, res) => {
     const {article} = res.locals;
 
     return res.status(HttpCode.OK).json(article);
   });
 
-  route.put(`/:articleId`, [articleValidator, articleExist(service)], async (req, res) => {
-    const {article} = res.locals;
-    const updatedArticle = await service.update(article.id, req.body);
+  route.put(
+      `/:articleId`,
+      [routeParamsValidator, articleExist(service), articleValidator],
+      async (req, res) => {
+        const {article} = res.locals;
+        const updatedArticle = await service.update(article.id, req.body);
 
-    return res.status(HttpCode.OK).json(updatedArticle);
-  });
+        return res.status(HttpCode.OK).json(updatedArticle);
+      }
+  );
 
-  route.delete(`/:articleId`, articleExist(service), async (_req, res) => {
+  route.delete(`/:articleId`, [routeParamsValidator, articleExist(service)], async (_req, res) => {
     const {article} = res.locals;
     const deletedArticle = await service.drop(article.id);
 

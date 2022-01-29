@@ -38,7 +38,7 @@ block content
                     time.comments__date(datetime='2019-03-21T20:33') 21.03.2019, 20:33
                   p.comments__message #{comment.text}
           .comments__footer.comments__footer--user
-            form(action='#' method='POST')
+            form(action=`/articles/${id}/comments` method='POST')
               .comments__avatar.avatar
                 img(src='/img/avatar-2.png' alt='аватар пользователя')
               label

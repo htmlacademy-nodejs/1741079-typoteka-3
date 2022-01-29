@@ -33,5 +33,9 @@ module.exports.shuffle = (someArray) => {
 };
 
 module.exports.formattedDate = (date) => dayjs(date).format(`D.MM.YYYY, HH:mm`);
-module.exports.dateToISOString = (date) => dayjs(date).toISOString();
+
 module.exports.ensureArray = (value) => (Array.isArray(value) ? value : [value]);
+
+module.exports.prepareErrors = (errors) => {
+  return errors.response.data.split(`/n`);
+};
