@@ -52,3 +52,10 @@ module.exports.GenerateParams = {
   MAX_COMMENTS: 4,
   MAX_CATEGORIES: 3
 };
+
+module.exports.HttpMethod = {
+  GET: `GET`,
+  POST: `POST`,
+  PUT: `PUT`,
+  DELETE: `DELETE`
+};

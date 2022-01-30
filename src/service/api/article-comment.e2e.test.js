@@ -61,12 +61,14 @@ test(`API refuses to get comment list to non-existent article`, async () => {
   const app = await createAPI();
 
   return request(app)
-    .get(`/articles/NOEXST/comments`)
+    .get(`/articles/20/comments`)
     .expect((res) => expect(res.statusCode).toBe(HttpCode.NOT_FOUND));
 });
 
 describe(`API creates a comment if data is valid`, () => {
-  const newComment = {text: `New comment`};
+  const newComment = {
+    text: `Давно выяснено, что при оценке дизайна и композиции читаемый текст мешает сосредоточиться.`
+  };
   let response;
   let app;
 
@@ -90,7 +92,7 @@ test(`API refuses to create a comment to non-existent article and returns status
   return request(app).post(`/articles/20/comments`).send(newComment).expect(HttpCode.NOT_FOUND);
 });
 
-describe(`API correctly deletes a comment by offer`, () => {
+describe(`API correctly deletes a comment by article`, () => {
   let app;
   let response;
 
