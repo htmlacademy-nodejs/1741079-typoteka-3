@@ -9,35 +9,11 @@ const ArticleDataService = require(`../data-service/article`);
 const CommentDataService = require(`../data-service/comment`);
 const initDB = require(`../lib/init-db`);
 const {HttpCode} = require(`../../constants`);
-
-const mockCategories = [`Деревья`];
-
-const mockArticles = [
-  {
-    title: `Рок — это протест`,
-    announce: `Процессор заслуживает особого внимания. Он обязательно понравится геймерам со стажем.`,
-    fullText: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
-    categories: [`Деревья`],
-    comments: [
-      {
-        text: `Планируете записать видосик на эту тему? Хочу такую же футболку :-) Это где ж такие красоты?`
-      },
-      {
-        text: `Давно не пользуюсь стационарными компьютерами. Ноутбуки победили. Плюсую, но слишком много буквы! Планируете записать видосик на эту тему?`
-      },
-      {
-        text: `Это где ж такие красоты? Совсем немного... Плюсую, но слишком много буквы!`
-      },
-      {
-        text: `Мне не нравится ваш стиль. Ощущение, что вы меня поучаете. Планируете записать видосик на эту тему?`
-      }
-    ]
-  }
-];
+const {mockArticles, mockCategories, mockUsers} = require(`./mock`);
 
 const createAPI = async () => {
   const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
-  await initDB(mockDB, {articles: mockArticles, categories: mockCategories});
+  await initDB(mockDB, {articles: mockArticles, categories: mockCategories, users: mockUsers});
   const app = express();
   app.use(express.json());
   commentsByArticle(app, new ArticleDataService(mockDB), new CommentDataService(mockDB));
@@ -67,6 +43,7 @@ test(`API refuses to get comment list to non-existent article`, async () => {
 
 describe(`API creates a comment if data is valid`, () => {
   const newComment = {
+    userId: 1,
     text: `Давно выяснено, что при оценке дизайна и композиции читаемый текст мешает сосредоточиться.`
   };
   let response;

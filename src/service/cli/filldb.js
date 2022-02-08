@@ -2,15 +2,19 @@
 
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
+const dayjs = require(`dayjs`);
 
 const {getLogger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
 const initDb = require(`../lib/init-db`);
+const passwordUtils = require(`../lib/password`);
 
 const {GenerateParams, DataFiles} = require(`../../constants`);
 const {getRandomInt, shuffle} = require(`../../utils`);
 
 const logger = getLogger({name: `api`});
+
+const getRandomFromArr = (arr) => arr[getRandomInt(0, arr.length - 1)];
 
 const generateCategories = (items) => {
   items = items.slice();
@@ -32,27 +36,27 @@ const readContent = async (filePath) => {
   }
 };
 
-const generateComments = (comments) => {
+const generateComments = ({comments, users}) => {
   const count = getRandomInt(1, GenerateParams.MAX_COMMENTS);
   return Array(count)
     .fill({})
     .map(() => ({
-      text: shuffle(comments).slice(0, getRandomInt(1, 3)).join(` `)
+      text: shuffle(comments).slice(0, getRandomInt(1, 3)).join(` `),
+      user: getRandomFromArr(users).email
     }));
 };
 
-const generateArticles = ({count, titles, descriptions, categories, comments}) => {
-  const getRandom = (arr) => arr[getRandomInt(0, arr.length - 1)];
-
+const generateArticles = ({count, titles, descriptions, categories, comments, users}) => {
   return Array(count)
     .fill({})
     .map(() => ({
-      title: getRandom(titles),
-      announce: getRandom(descriptions),
-      fullText: getRandom(descriptions),
-      createdDate: new Date().toISOString(),
+      title: getRandomFromArr(titles),
+      announce: getRandomFromArr(descriptions),
+      fullText: getRandomFromArr(descriptions),
+      publicationDate: dayjs().format(`YYYY-MM-DD`),
       categories: generateCategories(categories),
-      comments: generateComments(comments)
+      comments: generateComments({comments, users}),
+      user: getRandomFromArr(users).email
     }));
 };
 
@@ -75,14 +79,32 @@ module.exports = {
     const [count] = args;
     const countArticle = Number.parseInt(count, 10) || GenerateParams.DEFAULT_COUNT;
 
+    const users = [
+      {
+        name: `Иван`,
+        surname: `Иванов`,
+        email: `ivanov@example.com`,
+        passwordHash: await passwordUtils.hash(`ivanov`),
+        avatar: ``
+      },
+      {
+        name: `Пётр`,
+        surname: `Петров`,
+        email: `petrov@example.com`,
+        passwordHash: await passwordUtils.hash(`petrov`),
+        avatar: `avatar02.jpg`
+      }
+    ];
+
     const articles = generateArticles({
       count: countArticle,
       titles,
       descriptions,
       categories,
-      comments
+      comments,
+      users
     });
 
-    return initDb(sequelize, {articles, categories});
+    return initDb(sequelize, {articles, categories, users});
   }
 };

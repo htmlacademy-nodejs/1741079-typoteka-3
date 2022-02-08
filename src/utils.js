@@ -32,10 +32,12 @@ module.exports.shuffle = (someArray) => {
   return someArray;
 };
 
-module.exports.formattedDate = (date) => dayjs(date).format(`D.MM.YYYY, HH:mm`);
+module.exports.formattedDate = (date) => dayjs(date).format(`D.MM.YYYY`);
+
+module.exports.formattedDateTime = (date) => dayjs(date).format(`D.MM.YYYY, HH:mm`);
 
 module.exports.ensureArray = (value) => (Array.isArray(value) ? value : [value]);
 
 module.exports.prepareErrors = (errors) => {
-  return errors.response.data.split(`/n`);
+  return errors.response.data.split(`\n`);
 };

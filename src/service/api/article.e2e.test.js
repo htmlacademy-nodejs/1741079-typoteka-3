@@ -8,31 +8,13 @@ const article = require(`./article`);
 const DataService = require(`../data-service/article`);
 const initDB = require(`../lib/init-db`);
 const {HttpCode} = require(`../../constants`);
-
-const mockCategories = [`Разное`, `Музыка`];
-
-const mockArticles = [
-  {
-    title: `Лучшие рок-музыканты 20-века`,
-    announce: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
-    fullText: `Помните небольшое количество ежедневных упражнений лучше чем один раз но много.`,
-    categories: [`Разное`, `Музыка`],
-    comments: [
-      {text: `Совсем немного... Хочу такую же футболку :-)`},
-      {text: `Согласен с автором! Это где ж такие красоты? Совсем немного...`},
-      {text: `Плюсую, но слишком много буквы! Хочу такую же футболку :-)`},
-      {
-        text: `Совсем немного... Мне не нравится ваш стиль. Ощущение, что вы меня поучаете. Согласен с автором!`
-      }
-    ]
-  }
-];
+const {mockArticles, mockCategories, mockUsers} = require(`./mock`);
 
 const createAPI = async () => {
   const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
   const app = express();
   app.use(express.json());
-  await initDB(mockDB, {articles: mockArticles, categories: mockCategories});
+  await initDB(mockDB, {articles: mockArticles, categories: mockCategories, users: mockUsers});
   article(app, new DataService(mockDB));
   return app;
 };
@@ -66,36 +48,40 @@ describe(`API returns an article with given id`, () => {
     expect(response.body.title).toBe(`Лучшие рок-музыканты 20-века`));
 });
 
-// describe(`API creates an article if data is valid`, () => {
-//   const newArticle = {
-//     title: `Пропал музейный кот Ося`,
-//     announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
-//     fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
-//     categories: [1]
-//   };
+describe(`API creates an article if data is valid`, () => {
+  const newArticle = {
+    title: `Пропал музейный кот Ося`,
+    announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
+    fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
+    categories: [1],
+    userId: 1,
+    publicationDate: `2021-08-05`
+  };
 
-//   let app;
-//   let response;
+  let app;
+  let response;
 
-//   beforeAll(async () => {
-//     app = await createAPI();
-//     response = await request(app).post(`/articles`).send(newArticle);
-//   });
+  beforeAll(async () => {
+    app = await createAPI();
+    response = await request(app).post(`/articles`).send(newArticle);
+  });
 
-//   test(`Status code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
+  test(`Status code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
 
-//   test(`Article count is changed`, () =>
-//     request(app)
-//       .get(`/articles`)
-//       .expect((res) => expect(res.body.length).toBe(2)));
-// });
+  test(`Article count is changed`, () =>
+    request(app)
+      .get(`/articles`)
+      .expect((res) => expect(res.body.length).toBe(2)));
+});
 
 describe(`API refuses to create an article if data is invalid`, () => {
   const newArticle = {
     title: `Пропал музейный кот Ося`,
     announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
     fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
-    categories: [1]
+    categories: [1],
+    userId: 2,
+    publicationDate: `2021-08-05`
   };
   let app;
 
@@ -139,7 +125,9 @@ describe(`API changes existent article`, () => {
     title: `Пропал музейный кот Ося`,
     announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
     fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
-    categories: [1]
+    categories: [1],
+    userId: 1,
+    publicationDate: `2021-08-05`
   };
 
   let app;
@@ -165,7 +153,9 @@ test(`API returns status code 404 when trying to change non-existent article`, a
     title: `Пропал музейный кот Ося`,
     announce: `В Петербурге пропал старший кот музея Ахматовой. Ему 16 лет.`,
     fullText: `Друзья, у нас беда. Потерялся самый старший музейный кот Ося. Последний раз его видели вчера, 8 октября, в саду Фонтанного Дома.`,
-    categories: [1]
+    categories: [1],
+    userId: 2,
+    publicationDate: `2021-08-05`
   };
 
   return request(app).put(`/articles/20`).send(validArticle).expect(HttpCode.NOT_FOUND);
@@ -175,7 +165,9 @@ test(`API returns status code 400 when trying to change an article with invalid 
   const invalidArticle = {
     title: `Это невалидная статья`,
     announce: `Обрати внимание невалидная статья`,
-    fullText: `нет поля categories`
+    fullText: `нет поля categories`,
+    userId: 1,
+    publicationDate: `2021-08-05`
   };
   const app = await createAPI();
 

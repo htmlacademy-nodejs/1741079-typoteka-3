@@ -1,6 +1,6 @@
 "use strict";
 
-const Joi = require(`joi`);
+const Joi = require(`joi`).extend(require(`@joi/date`));
 const {HttpCode} = require(`../../constants`);
 
 const ErrorArticleMessage = {
@@ -10,7 +10,9 @@ const ErrorArticleMessage = {
   ANNOUNCE_MIN: `Анонс статьи содержит меньше 10 символов`,
   ANNOUNCE_MAX: `Анонс статьи не может содержать более 200 символов`,
   FULL_TEXT_MIN: `Описание содержит меньше 50 символов`,
-  FULL_TEXT_MAX: `Описание не может содержать более 1000 символов`
+  FULL_TEXT_MAX: `Описание не может содержать более 1000 символов`,
+  USER_ID: `Некорректный идентификатор пользователя`,
+  DATE: `Невалидная дата публикации`
 };
 
 const schema = Joi.object({
@@ -34,7 +36,13 @@ const schema = Joi.object({
     "string.min": ErrorArticleMessage.FULL_TEXT_MIN,
     "string.max": ErrorArticleMessage.FULL_TEXT_MAX
   }),
-  photo: Joi.string()
+  photo: Joi.string(),
+  userId: Joi.number().integer().positive().required().messages({
+    "number.base": ErrorArticleMessage.USER_ID
+  }),
+  publicationDate: Joi.date().format(`YYYY-MM-DD`).utc().required().messages({
+    "date.base": ErrorArticleMessage.DATE
+  })
 });
 
 module.exports = (req, res, next) => {
@@ -42,9 +50,7 @@ module.exports = (req, res, next) => {
   const {error} = schema.validate(newArticle, {abortEarly: false});
 
   if (error) {
-    return res
-      .status(HttpCode.BAD_REQUEST)
-      .send(error.details.map((err) => err.message).join(`\n`));
+    return res.status(HttpCode.BAD_REQUEST).send(error.details.map((e) => e.message).join(`\n`));
   }
 
   return next();

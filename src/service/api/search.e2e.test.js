@@ -9,41 +9,14 @@ const {HttpCode} = require(`../../constants`);
 const {Sequelize} = require(`sequelize`);
 const initDB = require(`../lib/init-db`);
 
-const mockCategories = [`Железо`, `За жизнь`, `Музыка`, `IT`, `Программирование`, `Разное`];
-
-const mockArticles = [
-  {
-    title: `Обзор новейшего смартфона`,
-    announce: `Помните небольшое количество ежедневных упражнений лучше чем один раз но много.`,
-    fullText: `Игры и программирование разные вещи. Не стоит идти в программисты если вам нравятся только игры.`,
-    categories: [`За жизнь`],
-    comments: [
-      {text: `Давно не пользуюсь стационарными компьютерами. Ноутбуки победили.`},
-      {
-        text: `Это где ж такие красоты? Мне не нравится ваш стиль. Ощущение, что вы меня поучаете.`
-      }
-    ]
-  },
-  {
-    title: `Борьба с прокрастинацией`,
-    announce: `Золотое сечение — соотношение двух величин гармоническая пропорция.`,
-    fullText: `Собрать камни бесконечности легко если вы прирожденный герой.`,
-    categories: [`Музыка`, `Разное`],
-    comments: [
-      {text: `Совсем немного... Согласен с автором!`},
-      {
-        text: `Планируете записать видосик на эту тему? Мне кажется или я уже читал это где-то?`
-      }
-    ]
-  }
-];
+const {mockArticles, mockCategories, mockUsers} = require(`./mock`);
 
 const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
 const app = express();
 app.use(express.json());
 
 beforeAll(async () => {
-  await initDB(mockDB, {articles: mockArticles, categories: mockCategories});
+  await initDB(mockDB, {articles: mockArticles, categories: mockCategories, users: mockUsers});
   search(app, new DataService(mockDB));
 });
 
@@ -52,7 +25,7 @@ describe(`API returns article based on search query`, () => {
 
   beforeAll(async () => {
     response = await request(app).get(`/search`).query({
-      query: `Борьба`
+      query: `Лучшие`
     });
   });
 
@@ -61,7 +34,7 @@ describe(`API returns article based on search query`, () => {
   test(`1 article found`, () => expect(response.body.length).toBe(1));
 
   test(`Article has correct title`, () =>
-    expect(response.body[0].title).toBe(`Борьба с прокрастинацией`));
+    expect(response.body[0].title).toBe(`Лучшие рок-музыканты 20-века`));
 });
 
 test(`API returns code 404 if nothing is found`, () =>

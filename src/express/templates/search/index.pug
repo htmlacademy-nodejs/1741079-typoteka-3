@@ -13,5 +13,5 @@ block content
             button.search__button.button.button--transparent(type='submit') Найти
           each result in results
             .search__result
-              time.search__date(datetime=result.createdDate) #{formattedDate(result.createdDate)}
+              time.search__date(datetime=result.publicationDate) #{formattedDate(result.publicationDate)}
               +boldFoundWord(result.title, searchValue)

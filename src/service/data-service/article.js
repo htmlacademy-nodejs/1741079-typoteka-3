@@ -7,13 +7,26 @@ class ArticleService {
     this._article = sequelize.models.Article;
     this._category = sequelize.models.Category;
     this._comment = sequelize.models.Comment;
+    this._user = sequelize.models.User;
   }
 
   async findAll(needComments) {
-    const include = [Alias.CATEGORIES];
+    const userModel = {
+      model: this._user,
+      as: Alias.USERS,
+      attributes: {
+        exclude: [`passwordHash`]
+      }
+    };
+
+    const include = [Alias.CATEGORIES, userModel];
 
     if (needComments) {
-      include.push(Alias.COMMENTS);
+      include.push({
+        model: this._comment,
+        as: Alias.COMMENTS,
+        include: [userModel]
+      });
     }
 
     const articles = await this._article.findAll({

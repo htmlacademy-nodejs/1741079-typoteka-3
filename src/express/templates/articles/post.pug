@@ -13,16 +13,16 @@ block content
                 .new-publication__date-form-division
                   .new-publication__date-block
                     label(for='new-publication-date' aria-label='Календарь')
-                    input#new-publication-date(type='text' name='date' value=(article ? article.createdDate: ``))
+                    input#new-publication-date(type='text' name='date' value=(article ? article.publicationDate : ``))
               button.new-publication__button.button.button--colored(type='submit') #{article ? 'Сохранить' : 'Опубликовать'}
-            a.popup__button.button.button--popup-close(aria-label='Закрыть окно' href='..')
+            a.popup__button.button.button--popup-close(aria-label='Закрыть окно' href=(article ? `/articles/${article.id}`: `/articles`))
               | Закрыть
               | окно
             .new-publication__form.form
               .form__wrapper.form__wrapper--intro
                 .form__field
                   label
-                    input(type='text' name='title' placeholder='Заголовок' required=true value=(article ? article.title : ``))
+                    input(type='text' name='title' placeholder='Заголовок' required value=(article ? article.title : ``))
                 .form__field.form__field--post-image
                   label
                     input#image-name-field(type='text' name='photo' placeholder='Фотография' readonly='')
@@ -33,15 +33,15 @@ block content
                 .new-publication__category-wrapper
                   each category in categories
                     .new-publication__checkbox.new-publication__checkbox--auto
-                      input(type='checkbox' name="categories" id=`checkbox-${category.id}` value=category.id checked=(article && article.categories.includes(category.id)))
+                      input(type='checkbox' name="category" id=`checkbox-${category.id}` value=category.id checked=(article && article.categories.includes(category.id)))
                       label(for=`checkbox-${category.id}`) #{category.name}
                   a.new-publication__form-link.button.button--transparent(href='/categories') Добавить категорию
               .form__wrapper.form__wrapper--text
                 .form__field.form__field--publication-text
                   label
-                    textarea(rows='5' name='announce' placeholder='Анонс публикации')=(article ? article.announce : '')
+                    textarea(rows='5' name='announce' required placeholder='Анонс публикации')=(article ? article.announce : '')
                 .form__field.form__field--publication-text
                   label
-                    textarea(rows='10' name='full-text' placeholder='Полный текст публикации')=(article ? article.fullText : '')
-            +insertErrorMessage(validationMessages)
+                    textarea(rows='10' name='full-text' required placeholder='Полный текст публикации')=(article ? article.fullText : '')
+            +insertErrorMessage(`Ошибки при ${article ? 'редактировании' : 'создании'} статьи`,validationMessages)
 
