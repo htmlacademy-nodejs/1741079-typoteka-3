@@ -20,7 +20,11 @@ const define = (sequelize) =>
           type: DataTypes.STRING(100),
           allowNull: false
         },
-        photo: DataTypes.STRING
+        photo: DataTypes.STRING,
+        publicationDate: {
+          type: DataTypes.DATE,
+          allowNull: false
+        }
       },
       {
         sequelize,

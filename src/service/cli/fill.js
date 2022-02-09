@@ -2,6 +2,7 @@
 
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
+const dayjs = require(`dayjs`);
 
 const {Files, GenerateParams, DataFiles} = require(`../../constants`);
 const {getRandomInt, shuffle} = require(`../../utils`);
@@ -62,7 +63,7 @@ const generateArticles = ({count, titles, descriptions, categoryCount, comments,
       title: getRandom(titles),
       announce: getRandom(descriptions),
       fullText: getRandom(descriptions),
-      createdDate: new Date().toISOString(),
+      publicationDate: dayjs().format(`YYYY-MM-DD`),
       categories: generateCategories(categoryCount),
       comments: generateComments({comments, articleId: ++index, userCount}),
       userId: getRandomInt(1, userCount)
