@@ -47,7 +47,8 @@ html(lang='ru')
     mixin insertErrorMessage(title, messages)
       if messages
         .form__validation-error
-          p.form__error-message=title
+          if(title)
+            p.form__error-message=title
           ul.form__errors
             each message of messages
               li.form__error=message
