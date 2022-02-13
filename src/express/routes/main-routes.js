@@ -10,6 +10,7 @@ const api = getAPI();
 const ARTICLES_PER_PAGE = 8;
 
 mainRoutes.get(`/`, async (req, res) => {
+  const {user} = req.session;
   let {page = 1} = req.query;
   page = +page;
   const limit = ARTICLES_PER_PAGE;
@@ -28,11 +29,20 @@ mainRoutes.get(`/`, async (req, res) => {
     categories,
     hotArticles: articles.slice(0, 4),
     totalPages,
-    page
+    page,
+    user
   });
 });
 
-mainRoutes.get(`/register`, (_req, res) => res.render(`sign/sign-up`));
+mainRoutes.get(`/register`, (req, res) => {
+  const {user} = req.session;
+
+  if (user) {
+    return res.redirect(`/`);
+  }
+
+  return res.render(`sign/sign-up`);
+});
 
 mainRoutes.post(`/register`, upload.single(`avatar`), async (req, res) => {
   const {body, file} = req;
@@ -50,26 +60,56 @@ mainRoutes.post(`/register`, upload.single(`avatar`), async (req, res) => {
     res.redirect(`/login`);
   } catch (e) {
     const validationMessages = prepareErrors(e);
+
     res.render(`sign/sign-up`, {validationMessages});
   }
 });
 
-mainRoutes.get(`/login`, (_req, res) => res.render(`sign/login`));
+mainRoutes.get(`/login`, (req, res) => {
+  const {user} = req.session;
+
+  if (user) {
+    return res.redirect(`/`);
+  }
+
+  return res.render(`sign/login`);
+});
+
+mainRoutes.post(`/login`, async (req, res) => {
+  try {
+    const user = await api.auth(req.body.email, req.body.password);
+    req.session.user = user;
+    req.session.save(() => res.redirect(`/`));
+  } catch (e) {
+    const validationMessages = prepareErrors(e);
+    const {user} = req.session;
+
+    res.render(`login`, {user, validationMessages});
+  }
+});
+
+mainRoutes.get(`/logout`, (req, res) => {
+  delete req.session.user;
+  res.redirect(`/`);
+});
 
 mainRoutes.get(`/search`, async (req, res) => {
+  const {user} = req.session;
   const {query: searchValue} = req.query;
 
   try {
     const results = await api.search(searchValue);
-    res.render(`search/index`, {results, formattedDate, searchValue});
+    res.render(`search/index`, {results, formattedDate, searchValue, user});
   } catch (e) {
-    res.render(`search/index`, {results: [], searchValue});
+    res.render(`search/index`, {results: [], searchValue, user});
   }
 });
 
-mainRoutes.get(`/categories`, async (_req, res) => {
+mainRoutes.get(`/categories`, async (req, res) => {
+  const {user} = req.session;
   const categories = await api.getCategories();
-  res.render(`categories/index`, {categories});
+
+  res.render(`categories/index`, {categories, user});
 });
 
 module.exports = mainRoutes;

@@ -2,13 +2,16 @@
 
 const {Router} = require(`express`);
 const dayjs = require(`dayjs`);
+const csrf = require(`csurf`);
 
 const {getAPI} = require(`../api`);
 const {ensureArray, formattedDate, prepareErrors} = require(`../../utils`);
 const upload = require(`../middlewares/upload`);
+const auth = require(`../middlewares/auth`);
 
 const articlesRoutes = new Router();
 const api = getAPI();
+const csrfProtection = csrf();
 
 const getAddArticleData = () => {
   return api.getCategories();
@@ -27,20 +30,31 @@ const getViewArticleData = (id) => {
 };
 
 articlesRoutes.get(`/category/:id`, async (req, res) => {
+  const {user} = req.session;
   const [articles, categories] = await Promise.all([api.getArticles(), api.getCategories]);
-  res.render(`articles/articles-by-category`, {articles, categories, title: req.params.id});
-});
 
-articlesRoutes.get(`/add`, async (_req, res) => {
-  const categories = await getAddArticleData();
-  res.render(`articles/post`, {
+  res.render(`articles/articles-by-category`, {
+    articles,
     categories,
-    today: dayjs().format(`YYYY-MM-DD`),
-    endpoint: `/articles/add`
+    title: req.params.id,
+    user
   });
 });
 
-articlesRoutes.post(`/add`, upload.single(`avatar`), async (req, res) => {
+articlesRoutes.get(`/add`, auth, csrfProtection, async (req, res) => {
+  const {user} = req.session;
+  const categories = await getAddArticleData();
+
+  res.render(`articles/post`, {
+    categories,
+    today: dayjs().format(`YYYY-MM-DD`),
+    endpoint: `/articles/add`,
+    user,
+    csrfToken: req.csrfToken()
+  });
+});
+
+articlesRoutes.post(`/add`, auth, upload.single(`avatar`), async (req, res) => {
   const {body, file} = req;
 
   const articleData = {
@@ -57,18 +71,22 @@ articlesRoutes.post(`/add`, upload.single(`avatar`), async (req, res) => {
     res.redirect(`/my`);
   } catch (e) {
     const validationMessages = prepareErrors(e);
+    const {user} = req.session;
     const categories = await getAddArticleData();
+
     res.render(`articles/post`, {
       categories,
       validationMessages,
       today: dayjs().format(`YYYY-MM-DD`),
-      endpoint: `/articles/add`
+      endpoint: `/articles/add`,
+      user
     });
   }
 });
 
-articlesRoutes.get(`/edit/:id`, async (req, res) => {
+articlesRoutes.get(`/edit/:id`, auth, csrfProtection, async (req, res) => {
   const {id} = req.params;
+  const {user} = req.session;
   const [article, categories] = await Promise.all([
     api.getArticle(id, {comments: false}),
     api.getCategories()
@@ -78,11 +96,13 @@ articlesRoutes.get(`/edit/:id`, async (req, res) => {
     article,
     categories,
     today: dayjs().format(`YYYY-MM-DD`),
-    endpoint: `/articles/edit/${id}`
+    endpoint: `/articles/edit/${id}`,
+    user,
+    csrfToken: req.csrfToken()
   });
 });
 
-articlesRoutes.put(`/edit/:id`, async (req, res) => {
+articlesRoutes.put(`/edit/:id`, auth, async (req, res) => {
   const {body, file} = req;
   const {id} = req.params;
 
@@ -100,21 +120,30 @@ articlesRoutes.put(`/edit/:id`, async (req, res) => {
     res.redirect(`/my`);
   } catch (e) {
     const validationMessages = prepareErrors(e);
+    const {user} = req.session;
     const [articles, categories] = await getEditArticleData(id);
+
     res.render(`articles/post`, {
       validationMessages,
       articles,
       categories,
       today: dayjs().format(`YYYY-MM-DD`),
-      endpoint: `/articles/edit/${id}`
+      endpoint: `/articles/edit/${id}`,
+      user
     });
   }
 });
 
 articlesRoutes.get(`/:id`, async (req, res) => {
+  const {user} = req.session;
   const {id} = req.params;
   const article = await getViewArticleData(id);
-  res.render(`articles/post-detail`, {id, article, formattedDate});
+  res.render(`articles/post-detail`, {
+    id,
+    article,
+    formattedDate,
+    user
+  });
 });
 
 articlesRoutes.post(`/:id/comments`, async (req, res) => {
@@ -126,8 +155,16 @@ articlesRoutes.post(`/:id/comments`, async (req, res) => {
     res.redirect(`/articles/${id}`);
   } catch (e) {
     const validationMessages = prepareErrors(e);
+    const {user} = req.session;
     const article = await getViewArticleData(id);
-    res.render(`articles/post-detail`, {article, id, validationMessages, formattedDate});
+
+    res.render(`articles/post-detail`, {
+      article,
+      id,
+      validationMessages,
+      formattedDate,
+      user
+    });
   }
 });
 

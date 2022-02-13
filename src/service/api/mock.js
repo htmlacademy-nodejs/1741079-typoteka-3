@@ -1,20 +1,21 @@
 "use strict";
 
 const mockCategories = [`Разное`, `Музыка`];
+const passwordUtils = require(`../lib/password`);
 
 const mockUsers = [
   {
     name: `Иван`,
     surname: `Иванов`,
     email: `ivanov@example.com`,
-    passwordHash: `ivanov`,
+    passwordHash: passwordUtils.hashSync(`ivanov`),
     avatar: ``
   },
   {
     name: `Пётр`,
     surname: `Петров`,
     email: `petrov@example.com`,
-    passwordHash: `petrov`,
+    passwordHash: passwordUtils.hashSync(`petrov`),
     avatar: `avatar02.jpg`
   }
 ];
