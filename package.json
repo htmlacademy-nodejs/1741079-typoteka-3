@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run start-servers",
-    "start-servers": "concurrently \"npm run start::debug\" \"npm run start-front-server\"",
-    "build": "cross-env NODE_ENV=production LOG_LEVEL=error node -r dotenv/config ./src/service/service.js --server",
-    "start::debug": "cross-env NODE_ENV=development LOG_LEVEL=info nodemon -r dotenv/config ./src/service/service.js --server | pino-pretty",
-    "start-front-server": "cross-env PORT=8080 API_PORT=3000 nodemon -r dotenv/config ./src/express/express.js",
+    "start-servers": "concurrently --names \"BACKEND,SSR\" --prefix-colors \"green,red\" \"npm run start-back-server::debug\" \"npm run start-front-server\"",
+    "start-back-server": "cross-env NODE_ENV=production LOG_LEVEL=error node -r dotenv/config ./src/service/service.js --server",
+    "start-back-server::debug": "cross-env NODE_ENV=development LOG_LEVEL=info nodemon -r dotenv/config ./src/service/service.js --server | pino-pretty",
+    "start-front-server": "cross-env PORT=8080 API_PORT=3000 node -r dotenv/config ./src/express/express.js",
     "jest": "jest",
     "test": "npm run eslint && npm run jest",
     "eslint": "eslint --ext .js src/"
